@@ -27,20 +27,68 @@ interface Props {
 //     )
 // }
 
-const ToDoList = (props: Props) => {
-    const { register, watch, handleSubmit, formState } = useForm();
+interface ISubmitData {
+    email: string;
+    firstName: string;
+    lastName: string;
+    password: string;
+    confirmPassword: string;
+}
 
-    const onValidation = (data: any) => {
-        console.log(data);
+const ToDoList = (props: Props) => {
+    const { register, watch, handleSubmit, formState: { errors }, setError } = useForm<ISubmitData>({
+        defaultValues: {
+            email: "@mirim.co.kr"
+        }
+    });
+
+    const onValidation = (data: ISubmitData) => {
+        console.log(data)
+        if (data.password !== data.confirmPassword) {
+            console.log(123)
+            setError('confirmPassword', { message: "Password are not the same." })
+        }
     }
-    console.log(watch())
-    console.log(formState.errors)
+
+    console.log(errors);
 
     return (
         <div>
-            <form onSubmit={handleSubmit(onValidation)}>
-                <input {...register("Email", { required: "이메일", minLength: 5 })} type="text" placeholder="Write your e-mail" />
-                <input {...register("toDo", { required: true, minLength: { value: 10, message: "todo" } })} type="text" placeholder="Write a to do" />
+            <form onSubmit={handleSubmit(onValidation)} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
+                <input
+                    {...register("email",
+                        {
+                            required: "only mirim mail",
+                            pattern: {
+                                message: "only mirim email address",
+                                value: /^[A-Za-z0-9._%+-]+@mirim.co.kr$/
+                            },
+                            minLength : {
+                                value : 5,
+                                message : "Too short"
+                            },
+                            validate : {
+                                "valid1" : () => {
+                                    return true;
+                                },
+                                "valid2" : () => {
+                                    return true;
+                                },
+                            }
+                        }
+                    )}
+                    type="text"
+                    placeholder="Write your e-mail"
+                />
+                <span>{errors?.email?.message}</span>
+                <input {...register("firstName", { required: "firstName is require", minLength: { value: 1, message: "First name is so short." }, validate : value => !value.includes('tae') })} type="text" placeholder="First Name" />
+                <span>{errors?.firstName?.message}</span>
+                <input {...register("lastName", { required: "lastName is require", minLength: { value: 2, message: "Last name is so short." } })} type="text" placeholder="Last Name" />
+                <span>{errors?.lastName?.message}</span>
+                <input {...register("password", { required: "password is require", minLength: { value: 3, message: "password is so short." } })} type="text" placeholder="Password" />
+                <span>{errors?.password?.message}</span>
+                <input {...register("confirmPassword", { required: "confirmPassword is require", minLength: { value: 3, message: "confirm password is so short." } })} type="text" placeholder="Confirm Password" />
+                <span>{errors?.confirmPassword?.message}</span>
                 <button>Add</button>
             </form>
         </div>

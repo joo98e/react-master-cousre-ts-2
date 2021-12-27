@@ -12,8 +12,8 @@ const App = (props: Props) => {
 
   return (
     <React.Fragment>
-        <GlobalStyle />
-        <ToDoList />
+      <GlobalStyle />
+      <ToDoList />
     </React.Fragment>
   )
 }
