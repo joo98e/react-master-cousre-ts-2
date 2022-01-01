@@ -1,97 +1,45 @@
-import React, { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import React from 'react'
+import { useRecoilState, useRecoilValue } from 'recoil'
+import { Categories, categoryState, toDoSelector, toDoState } from './Atoms/toDoState'
+import CreateToDo from './CreateToDo'
+import ToDo from './ToDo'
+
 interface Props {
 
 }
 
-// const ToDoList = (props: Props) => {
-//     const [todo, setTodo] = useState<string>("");
 
-//     const onChange = (event: React.FormEvent<HTMLInputElement>) => {
-//         const { currentTarget: { value } } = event;
-//         setTodo(value);
-//     }
-
-//     const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-//         event.preventDefault();
-//         console.log(todo);
-//     }
-
-//     return (
-//         <div>
-//             <form onSubmit={onSubmit}>
-//                 <input type="text" onChange={onChange} value={todo} placeholder="Write a to do" />
-//                 <button>Add</button>
-//             </form>
-//         </div>
-//     )
-// }
-
-interface ISubmitData {
-    email: string;
-    firstName: string;
-    lastName: string;
-    password: string;
-    confirmPassword: string;
-}
 
 const ToDoList = (props: Props) => {
-    const { register, watch, handleSubmit, formState: { errors }, setError } = useForm<ISubmitData>({
-        defaultValues: {
-            email: "@mirim.co.kr"
-        }
-    });
+    const toDos = useRecoilValue(toDoSelector);
+    const [category, setCategory] = useRecoilState(categoryState);
 
-    const onValidation = (data: ISubmitData) => {
-        console.log(data)
-        if (data.password !== data.confirmPassword) {
-            console.log(123)
-            setError('confirmPassword', { message: "Password are not the same." })
-        }
+    const onInput = (e: React.FormEvent<HTMLSelectElement>) => {
+        setCategory(e.currentTarget.value as any);
     }
 
-    console.log(errors);
-
     return (
-        <div>
-            <form onSubmit={handleSubmit(onValidation)} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
-                <input
-                    {...register("email",
-                        {
-                            required: "only mirim mail",
-                            pattern: {
-                                message: "only mirim email address",
-                                value: /^[A-Za-z0-9._%+-]+@mirim.co.kr$/
-                            },
-                            minLength : {
-                                value : 5,
-                                message : "Too short"
-                            },
-                            validate : {
-                                "valid1" : () => {
-                                    return true;
-                                },
-                                "valid2" : () => {
-                                    return true;
-                                },
-                            }
-                        }
-                    )}
-                    type="text"
-                    placeholder="Write your e-mail"
-                />
-                <span>{errors?.email?.message}</span>
-                <input {...register("firstName", { required: "firstName is require", minLength: { value: 1, message: "First name is so short." }, validate : value => !value.includes('tae') })} type="text" placeholder="First Name" />
-                <span>{errors?.firstName?.message}</span>
-                <input {...register("lastName", { required: "lastName is require", minLength: { value: 2, message: "Last name is so short." } })} type="text" placeholder="Last Name" />
-                <span>{errors?.lastName?.message}</span>
-                <input {...register("password", { required: "password is require", minLength: { value: 3, message: "password is so short." } })} type="text" placeholder="Password" />
-                <span>{errors?.password?.message}</span>
-                <input {...register("confirmPassword", { required: "confirmPassword is require", minLength: { value: 3, message: "confirm password is so short." } })} type="text" placeholder="Confirm Password" />
-                <span>{errors?.confirmPassword?.message}</span>
-                <button>Add</button>
-            </form>
-        </div>
+        <>
+            <h1>To Do List</h1>
+            <hr />
+            <select onInput={onInput} value={category}>
+                <option value={Categories.TO_DO}>To Do</option>
+                <option value={Categories.DOING}>Doing</option>
+                <option value={Categories.DONE}>Done</option>
+            </select>
+            <br />
+            <span>current category : {category}</span>
+
+            <hr />
+            <CreateToDo />
+            <hr />
+
+            <ul>
+                {
+                    toDos?.map(toDo => <ToDo {...toDo} key={toDo.id} />)
+                }
+            </ul>
+        </>
     )
 }
 
